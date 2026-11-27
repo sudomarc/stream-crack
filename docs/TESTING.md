@@ -1,6 +1,6 @@
 # Testing Strategy
 
-Testing must support StreamCrack's WPA2 auditing and recovery product direction while protecting parser safety, privacy, and reproducibility.
+Testing must support StreamCrack's WPA2 auditing and recovery product direction.
 
 ## Test layers
 - Unit: configuration, validation, typed errors, protocol-domain types, state transitions, and redaction.
