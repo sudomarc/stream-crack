@@ -1,7 +1,7 @@
 # Architecture
 
 ## Product objective
-StreamCrack is intended for WPA2 Wi-Fi password auditing and recovery in authorized environments. The architecture must support a local-first Rust application with a terminal UI and efficient resource use.
+StreamCrack is intended for WPA2 Wi-Fi password auditing and recovery . The architecture must support a local-first Rust application with a terminal UI and efficient resource use.
 
 ## Architectural components
 1. CLI/application: argument parsing, configuration, lifecycle, and error propagation.
@@ -41,4 +41,3 @@ The core domain must not depend on the TUI. Input and protocol layers expose val
 - Support cancellation and report progress for long-running work.
 - Keep sensitive values out of routine logs.
 - Use typed errors and avoid panics on malformed input.
-- Keep tests deterministic and free of private captures.
