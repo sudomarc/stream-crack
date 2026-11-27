@@ -1,34 +1,34 @@
 # Technical Specification
 
-## Product
-A local Rust TUI for inspecting WPA2-related capture metadata and running controlled synthetic protocol experiments. It does not recover passwords or verify guesses against real captures.
+## Product definition
+StreamCrack is a Rust terminal application whose intended product objective is WPA2 Wi-Fi password auditing and recovery in authorized environments. Capture inspection is a supporting capability, not the product's end goal.
 
-## Functional requirements
-- FR-01: Open explicit local PCAP and PCAPNG paths.
-- FR-02: Enforce configurable file, record, packet, block, and memory limits.
-- FR-03: Validate headers, lengths, byte order, timestamps, link types, and truncation.
-- FR-04: Decode supported 802.11/EAPOL metadata safely.
-- FR-05: Classify handshake-related frame sequences as metadata only.
-- FR-06: Display summaries, timelines, warnings, and diagnostics in a keyboard-driven TUI.
-- FR-07: Export sanitized JSON.
-- FR-08: Provide deterministic synthetic fixtures and known-answer tests.
-- FR-09: Exit cleanly on malformed input, cancellation, and terminal resize.
+## Product requirements
+- PR-01: Provide a keyboard-driven terminal interface.
+- PR-02: Support local, offline workflows.
+- PR-03: Treat input files and protocol data as untrusted.
+- PR-04: Provide clear status, diagnostics, and results reporting.
+- PR-05: Operate predictably on resource-constrained computers.
+- PR-06: Keep protocol handling, application logic, and presentation decoupled.
+- PR-07: Document supported inputs, limitations, and resource requirements.
+- PR-08: Include deterministic automated tests and reproducible test fixtures.
+- PR-09: Handle malformed input and cancellation without crashing.
+- PR-10: Make authorization and responsible-use expectations explicit.
 
 ## Non-functional requirements
-- No runtime network access.
-- Bounded memory and streaming parsing.
-- No panics on malformed input.
-- No sensitive payloads or secrets in logs/reports.
-- Deterministic tests without private captures.
-- Unknown formats and frame types are reported explicitly.
+- Local-first operation; no network dependency required for ordinary use.
+- Bounded memory and explicit resource limits.
+- Robust error handling and no panics on malformed input.
+- No unnecessary disclosure of sensitive data in logs or reports.
+- Maintainable Rust code and a reviewed dependency set.
+- Tests must be reproducible and must not contain private user data.
 
-## Initial defaults
-- Rust edition 2024; Linux x86_64 as first validation target.
-- Ratatui + Crossterm TUI; Clap CLI.
-- PCAP and PCAPNG input.
-- Initial memory budget: 256 MiB, configurable and enforced.
-- JSON reporting.
-- Offline operation only.
+## Initial technical decisions
+- Language: Rust.
+- Target protocol: WPA2.
+- Interface: TUI.
+- Initial platform: Linux x86_64; portability to be evaluated.
+- Input formats and detailed compatibility matrix: to be finalized during implementation planning.
 
 ## Acceptance criteria
-A release candidate must inspect supported files, reject malformed input safely, enforce resource limits, classify supported metadata, pass synthetic tests, provide usable keyboard navigation, and emit sanitized reports. Credential recovery is explicitly excluded.
+A release candidate must have a usable TUI, documented compatibility, robust input handling, bounded resource use, reproducible tests, and clear reporting. Product scope is WPA2 password auditing and recovery; it must not be redefined as metadata inspection alone.
