@@ -1,6 +1,6 @@
 # Roadmap
 
-StreamCrack's product objective is WPA2 Wi-Fi password auditing and recovery in authorized environments. The phases below organize the project foundation and supporting engineering work; they do not redefine the product as a metadata-only inspector.
+StreamCrack's product objective is WPA2 Wi-Fi password auditing and recoverys. The phases below organize the project foundation and supporting engineering work; they do not redefine the product as a metadata-only inspector.
 
 ## Phase 0 — Project foundation
 - [x] Rust project and repository documentation.
