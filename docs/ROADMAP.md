@@ -3,9 +3,9 @@
 Dates are intentionally omitted until implementation velocity is known.
 
 ## Phase 0 — Foundation
-- [ ] Rust crate, CLI skeleton, toolchain policy.
-- [ ] Formatting, Clippy, tests, and CI.
-- [ ] Configuration and typed error model.
+- [x] Rust crate, CLI skeleton, toolchain policy.
+- [x] Formatting, Clippy, tests, and CI.
+- [x] Configuration and typed error model.
 
 ## Phase 1 — Capture ingestion
 - [ ] PCAP reader with byte-order and header validation.

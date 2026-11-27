@@ -1,0 +1,18 @@
+[package]
+name = "streamcrack"
+version = "0.1.0"
+edition = "2024"
+description = "Offline WPA2-related capture metadata inspector and synthetic protocol laboratory"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+thiserror = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+
+[profile.release]
+opt-level = 2
+
+[workspace]
