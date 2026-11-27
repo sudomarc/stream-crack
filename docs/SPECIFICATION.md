@@ -1,7 +1,7 @@
 # Technical Specification
 
 ## Product definition
-StreamCrack is a Rust terminal application whose intended product objective is WPA2 Wi-Fi password auditing and recovery in authorized environments. Capture inspection is a supporting capability, not the product's end goal.
+StreamCrack is a Rust terminal application whose intended product objective is WPA2 Wi-Fi password auditing and recovery. Capture inspection is a supporting capability, not the product's end goal.
 
 ## Product requirements
 - PR-01: Provide a keyboard-driven terminal interface.
@@ -13,7 +13,6 @@ StreamCrack is a Rust terminal application whose intended product objective is W
 - PR-07: Document supported inputs, limitations, and resource requirements.
 - PR-08: Include deterministic automated tests and reproducible test fixtures.
 - PR-09: Handle malformed input and cancellation without crashing.
-- PR-10: Make authorization and responsible-use expectations explicit.
 
 ## Non-functional requirements
 - Local-first operation; no network dependency required for ordinary use.
