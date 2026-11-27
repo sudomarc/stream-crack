@@ -1,40 +1,42 @@
 # Roadmap
 
-Dates are intentionally omitted until implementation velocity is known.
+StreamCrack's product objective is WPA2 Wi-Fi password auditing and recovery in authorized environments. The phases below organize the project foundation and supporting engineering work; they do not redefine the product as a metadata-only inspector.
 
-## Phase 0 — Foundation
-- [x] Rust crate, CLI skeleton, toolchain policy.
-- [x] Formatting, Clippy, tests, and CI.
-- [x] Configuration and typed error model.
+## Phase 0 — Project foundation
+- [x] Rust project and repository documentation.
+- [x] Initial technical direction: Rust, WPA2, TUI.
+- [ ] Confirm supported operating systems and toolchain.
+- [ ] Establish CI, formatting, linting, and test baselines.
 
-## Phase 1 — Capture ingestion
-- [ ] PCAP reader with byte-order and header validation.
-- [ ] PCAPNG reader with section/interface/block validation.
-- [ ] Streaming iteration and explicit resource limits.
-- [ ] Malformed/truncated-input regression fixtures.
+## Phase 1 — Application foundation
+- [ ] CLI, configuration, and typed error model.
+- [ ] TUI shell, navigation, and application state.
+- [ ] Progress reporting and cancellation.
+- [ ] Resource-budget configuration.
 
-## Phase 2 — Protocol metadata
-- [ ] Safe 802.11 header decoding.
-- [ ] EAPOL metadata extraction.
-- [ ] Handshake-related frame classification without credential verification.
-- [ ] Document supported and unsupported frame/link types.
+## Phase 2 — Input and protocol foundations
+- [ ] Define supported input formats and compatibility matrix.
+- [ ] Implement robust format identification and validation.
+- [ ] Add protocol-domain types and validation tests.
+- [ ] Add malformed-input and resource-exhaustion tests.
 
-## Phase 3 — Synthetic laboratory
-- [ ] Synthetic fixture schema and provenance.
-- [ ] Deterministic known-answer tests.
-- [ ] Strict separation from real-capture workflows.
+## Phase 3 — Core workflow integration
+- [ ] Define workflow interfaces and lifecycle.
+- [ ] Integrate core processing with the application state.
+- [ ] Add clear progress, diagnostics, and result presentation.
+- [ ] Document operational assumptions and authorized-use expectations.
 
-## Phase 4 — TUI and reports
-- [ ] Dashboard and capture browser.
-- [ ] Frame timeline and diagnostics views.
-- [ ] Keyboard navigation and resize handling.
-- [ ] Sanitized JSON export.
+## Phase 4 — Quality and performance
+- [ ] Benchmark general application overhead and input processing.
+- [ ] Profile memory use on constrained hardware.
+- [ ] Add regression and fuzz testing for parsers.
+- [ ] Audit logging and sensitive-data handling.
 
-## Phase 5 — Hardening and release
-- [ ] Parser fuzzing.
-- [ ] Memory/resource-limit tests.
-- [ ] Logging and report-redaction audit.
-- [ ] Release workflow and user documentation.
+## Phase 5 — Release readiness
+- [ ] Complete user documentation.
+- [ ] Validate supported platforms.
+- [ ] Establish reproducible release builds.
+- [ ] Publish known limitations and security reporting guidance.
 
 ## Definition of done
-Implementation, tests, docs, formatting, Clippy, and relevant resource/security checks are complete. PRs report exact commands and outcomes.
+Each change includes tests appropriate to its behavior, updated documentation, formatting and lint checks, and a report of commands actually run.
