@@ -1,6 +1,6 @@
 # Contributing
 
-StreamCrack is a Rust TUI project focused on WPA2 Wi-Fi password auditing and recovery in authorized environments. Contributions should preserve this product direction rather than recasting the project as a metadata-only capture viewer.
+StreamCrack is a Rust TUI project focused on WPA2 Wi-Fi password auditing and recovery. Contributions should preserve this product direction rather than recasting the project as a metadata-only capture viewer.
 
 ## Workflow
 1. Read AGENTS.md, SECURITY.md, and the relevant specification.
@@ -17,6 +17,3 @@ StreamCrack is a Rust TUI project focused on WPA2 Wi-Fi password auditing and re
 
 ## Pull request requirements
 Describe the problem, implementation, linked issue, tests, commands actually run, compatibility implications, and security/resource impact. State any limitations clearly and do not claim checks passed unless they were run.
-
-## Responsible use
-Contributors and users are responsible for ensuring they have authorization to assess the networks and data involved.
