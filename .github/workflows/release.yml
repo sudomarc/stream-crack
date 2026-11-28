@@ -34,15 +34,15 @@ jobs:
       - name: Get release tag
         id: get_tag
         run: |
-          TAG="${{ github.ref_name }}"
+          TAG="${GITHUB_REF_NAME}"
           if [ -z "$TAG" ]; then
-            TAG="${{ github.event.inputs.tag }}"
+            TAG="${INPUT_TAG}"
           fi
           if [ -z "$TAG" ]; then
             TAG="v$(grep '^version' Cargo.toml | head -1 | sed 's/.*= *//;s/\"//g')"
             echo "No tag provided, deriving from Cargo.toml: $TAG"
           fi
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Run full test suite
         run: |
@@ -68,9 +68,9 @@ jobs:
           cp LICENSE pkg/build/usr/share/doc/streamcrack/LICENSE 2>/dev/null || true
           cp man/streamcrack.1 pkg/build/usr/share/man/man1/streamcrack.1 2>/dev/null || true
           gzip -c pkg/build/usr/share/man/man1/streamcrack.1 > pkg/build/usr/share/man/man1/streamcrack.1.gz 2>/dev/null || true
-          cat > pkg/build/DEBIAN/control << CONTROLEOF
+          cat > pkg/build/DEBIAN/control << 'CONTROLEOF'
 Package: streamcrack
-Version: ${TAG#v}
+Version: 0.1.0-1
 Section: net
 Priority: optional
 Architecture: amd64
@@ -88,17 +88,19 @@ Homepage: https://sudomarc.github.io/stream-crack/
 CONTROLEOF
           dpkg-deb --build --root-owner-group pkg/build "$DEB"
           ls -la "$DEB"
-          echo "deb=$DEB" >> $GITHUB_OUTPUT
+          echo "deb=$DEB" >> "$GITHUB_OUTPUT"
 
       - name: Import GPG signing key
-        if: secrets.STREAMCRACK_GPG_PRIVATE_KEY != ''
+        if: env.STREAMCRACK_GPG_PRIVATE_KEY != ''
         run: |
-          echo "${{ secrets.STREAMCRACK_GPG_PRIVATE_KEY }}" | gpg --batch --import
+          echo "${STREAMCRACK_GPG_PRIVATE_KEY}" | gpg --batch --import
           echo "GPG key imported"
+        env:
+          STREAMCRACK_GPG_PRIVATE_KEY: ${{ secrets.STREAMCRACK_GPG_PRIVATE_KEY }}
 
       - name: Create GitHub release
         id: create_release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.get_tag.outputs.tag }}
           name: StreamCrack ${{ steps.get_tag.outputs.tag }}
@@ -139,13 +141,18 @@ CONTROLEOF
           prerelease: false
 
       - name: Upload .deb as release asset
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.get_tag.outputs.tag }}
           files: ${{ steps.build_deb.outputs.deb }}
 
       - name: Update APT repository and commit
-        if: secrets.STREAMCRACK_GPG_PRIVATE_KEY != ''
+        if: env.STREAMCRACK_GPG_PRIVATE_KEY != ''
+        env:
+          STREAMCRACK_GPG_PRIVATE_KEY: ${{ secrets.STREAMCRACK_GPG_PRIVATE_KEY }}
+          STREAMCRACK_GPG_PASSPHRASE: ${{ secrets.STREAMCRACK_GPG_PASSPHRASE }}
+          STREAMCRACK_GPG_NAME: ${{ secrets.STREAMCRACK_GPG_NAME }}
+          STREAMCRACK_APT_DIST: stable
         run: |
           DEB="${{ steps.build_deb.outputs.deb }}"
           TAG="${{ steps.get_tag.outputs.tag }}"
@@ -164,5 +171,3 @@ CONTROLEOF
           git add docs/apt/
           git commit -m "chore(release): update APT repository for ${{ steps.get_tag.outputs.tag }}" || echo "No changes to commit"
           git push origin main || echo "Push failed"
-        env:
-          STREAMCRACK_GPG_NAME: ${{ secrets.STREAMCRACK_GPG_NAME }}
