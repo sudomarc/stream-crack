@@ -231,11 +231,9 @@ fn run_crack(
     }
 
     let mut handshakes = extract_handshakes(&records);
-    let handshake = handshakes.pop().ok_or_else(|| {
-        Error::MalformedCapture {
-            message: "no WPA2 handshake (two EAPOL-Key messages on one MAC pair) found in capture"
-                .to_string(),
-        }
+    let handshake = handshakes.pop().ok_or_else(|| Error::MalformedCapture {
+        message: "no WPA2 handshake (two EAPOL-Key messages on one MAC pair) found in capture"
+            .to_string(),
     })?;
 
     let engine = CrackEngine::new(CrackConfig {

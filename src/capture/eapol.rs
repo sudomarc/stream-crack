@@ -336,15 +336,15 @@ mod tests {
 
     fn eapol_key_m2(nonce: &[u8; 32], mic: &[u8; 16]) -> Vec<u8> {
         let mut body = Vec::new();
-        body.push(2);      // RSN descriptor
+        body.push(2); // RSN descriptor
         body.extend_from_slice(&0u16.to_le_bytes()); // key_info
         body.extend_from_slice(&0u16.to_le_bytes()); // key_length
         body.extend_from_slice(&0u64.to_le_bytes()); // replay counter
-        body.extend_from_slice(nonce);               // key_nonce
-        body.extend_from_slice(&[0u8; 16]);          // key_iv
-        body.extend_from_slice(&[0u8; 8]);           // key_index
-        body.extend_from_slice(&[0u8; 8]);           // key_id
-        body.extend_from_slice(mic);                 // key_mic @ body offset 77
+        body.extend_from_slice(nonce); // key_nonce
+        body.extend_from_slice(&[0u8; 16]); // key_iv
+        body.extend_from_slice(&[0u8; 8]); // key_index
+        body.extend_from_slice(&[0u8; 8]); // key_id
+        body.extend_from_slice(mic); // key_mic @ body offset 77
         body.extend_from_slice(&0u16.to_be_bytes()); // key_data_length = 0
         let mut eapol = Vec::new();
         eapol.push(2); // version
@@ -471,8 +471,22 @@ mod tests {
         p2.extend_from_slice(&m2);
 
         let recs = vec![
-            PacketRecord { index: 0, timestamp: 0, caplen: p1.len() as u32, orig_len: p1.len() as u32, payload: p1, link_type: 105 },
-            PacketRecord { index: 1, timestamp: 0, caplen: p2.len() as u32, orig_len: p2.len() as u32, payload: p2, link_type: 105 },
+            PacketRecord {
+                index: 0,
+                timestamp: 0,
+                caplen: p1.len() as u32,
+                orig_len: p1.len() as u32,
+                payload: p1,
+                link_type: 105,
+            },
+            PacketRecord {
+                index: 1,
+                timestamp: 0,
+                caplen: p2.len() as u32,
+                orig_len: p2.len() as u32,
+                payload: p2,
+                link_type: 105,
+            },
         ];
         let hs = extract_handshakes(&recs);
         assert_eq!(hs.len(), 1);
@@ -485,7 +499,7 @@ mod tests {
     // Integration: extract handshake, then verify correct password.
     #[test]
     fn extracted_handshake_verifies_correct_password() {
-        use crate::crypto::{pmk_from_psk, compute_ptk, kck_for_ptk, compute_mic};
+        use crate::crypto::{compute_mic, compute_ptk, kck_for_ptk, pmk_from_psk};
         let ssid = b"integ-test";
         let password = b"correct-horse-battery-staple";
         let pmk = pmk_from_psk(password, ssid);
