@@ -26,5 +26,11 @@ jobs:
         id: tag
         run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
+      - name: Run full test suite
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy --all-targets --all-features -- -D warnings
+          cargo test --all-targets
+
       - name: Show tag
         run: echo "${{ steps.tag.outputs.tag }}"
