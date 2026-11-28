@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -24,7 +25,7 @@ jobs:
         id: tag
         run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
-      - name: Run full test suite
+      - name: Test
         run: cargo test --all-targets
 
       - name: Build release
@@ -36,7 +37,7 @@ jobs:
       - name: Build .deb
         id: deb
         run: |
-          TAG=${{ steps.tag.outputs.tag }}
+          TAG=${GITHUB_REF_NAME}
           DEB="streamcrack_${TAG}_amd64.deb"
           rm -rf pkg/build
           mkdir -p pkg/build/DEBIAN pkg/build/usr/bin pkg/build/usr/share/doc/streamcrack pkg/build/usr/share/man/man1
