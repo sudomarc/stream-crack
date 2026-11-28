@@ -22,11 +22,19 @@ Options:
                         printing the human-readable summary.
   --max-file-size BYTES Maximum capture file size in bytes (default: 256 MiB).
   --max-memory BYTES    Maximum memory budget in bytes (default: 256 MiB).
+  -t, --tui             Launch the terminal user interface instead of printing
+                        the sanitized metadata summary.
+  -c, --crack           Offline WPA2 password recovery against a capture's
+                        handshake (dictionary or mask attack; authorized use
+                        only).
+  -w, --wordlist FILE   Wordlist file (one password per line) for --crack.
+  -m, --mask MASK       Mask pattern for --crack (e.g. ?l?l?d?d).
   -h, --help            Print this help.
   -V, --version         Print version information.
 ";
 
 /// Command-line arguments parsed from `std::env::args`.
+#[derive(Clone, Debug)]
 pub struct Cli {
     /// Path to the local PCAP or PCAPNG capture file to inspect.
     pub input: PathBuf,
@@ -39,6 +47,18 @@ pub struct Cli {
 
     /// Maximum memory budget in bytes (default: 256 MiB).
     pub max_memory: Option<usize>,
+
+    /// Launch the terminal user interface instead of printing the summary.
+    pub tui: bool,
+
+    /// Offline WPA2 password recovery against a capture's handshake.
+    pub crack: bool,
+
+    /// Wordlist file (one password per line) for --crack.
+    pub wordlist: Option<PathBuf>,
+
+    /// Mask pattern for --crack (e.g. `?l?l?d?d`).
+    pub mask: Option<String>,
 }
 
 impl Cli {
@@ -56,6 +76,10 @@ impl Cli {
         let mut output: Option<PathBuf> = None;
         let mut max_file_size: Option<u64> = None;
         let mut max_memory: Option<usize> = None;
+        let mut tui = false;
+        let mut crack = false;
+        let mut wordlist: Option<PathBuf> = None;
+        let mut mask: Option<String> = None;
 
         while let Some(arg) = args.next() {
             match arg.as_str() {
@@ -83,6 +107,16 @@ impl Cli {
                     println!("streamcrack {VERSION}");
                     std::process::exit(0);
                 }
+                "-t" | "--tui" => tui = true,
+                "-c" | "--crack" => crack = true,
+                "-w" | "--wordlist" => {
+                    wordlist = Some(PathBuf::from(take_value(&mut args, "--wordlist")?))
+                }
+                s if s.starts_with("--wordlist=") => {
+                    wordlist = Some(PathBuf::from(&s[11..]))
+                }
+                "-m" | "--mask" => mask = Some(take_value(&mut args, "--mask")?),
+                s if s.starts_with("--mask=") => mask = Some(s[7..].to_string()),
                 s if s.starts_with('-') => return Err(format!("unrecognized argument: {arg}")),
                 _ => {
                     if input.is_some() {
@@ -95,11 +129,22 @@ impl Cli {
 
         let input = input.ok_or_else(|| "missing input FILE".to_string())?;
 
+        if crack && wordlist.is_some() == mask.is_some() {
+            return Err("--crack requires exactly one of --wordlist or --mask".to_string());
+        }
+        if !crack && (wordlist.is_some() || mask.is_some()) {
+            return Err("--wordlist and --mask require --crack".to_string());
+        }
+
         Ok(Self {
             input,
             output,
             max_file_size,
             max_memory,
+            tui,
+            crack,
+            wordlist,
+            mask,
         })
     }
 

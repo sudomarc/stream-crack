@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	$(MAKE) -C $(CURDIR)/.. release
+
+override_dh_auto_install:
+	install -D -m 0755 $(CURDIR)/../target/release/streamcrack \
+		debian/streamcrack/usr/bin/streamcrack
+	install -d debian/streamcrack/usr/share/doc/streamcrack
+	install -m 0644 $(CURDIR)/../README.md \
+		debian/streamcrack/usr/share/doc/streamcrack/README.md
+	install -m 0644 $(CURDIR)/../LICENSE \
+		debian/streamcrack/usr/share/doc/streamcrack/LICENSE 2>/dev/null || true
+	install -d debian/streamcrack/usr/share/man/man1
+	install -m 0644 $(CURDIR)/../man/streamcrack.1 \
+		debian/streamcrack/usr/share/man/man1/streamcrack.1

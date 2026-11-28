@@ -215,7 +215,7 @@ fn read_block_header<R: Read + ?Sized>(
     let block_type = u32::from_le_bytes([header[0], header[1], header[2], header[3]]);
     let total = u32::from_le_bytes([header[4], header[5], header[6], header[7]]) as u64;
 
-    if total < BLOCK_HEADER_LEN as u64 || !total.is_multiple_of(4) {
+    if total < BLOCK_HEADER_LEN as u64 || total % 4 != 0 {
         return Err(Error::MalformedCapture {
             message: format!(
                 "invalid PCAPNG block total_length {total} for block type {block_type}"

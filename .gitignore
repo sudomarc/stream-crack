@@ -1,1 +1,4 @@
 /target
+.claude/.env
+pkg/build/
+/streamcrack_*.deb

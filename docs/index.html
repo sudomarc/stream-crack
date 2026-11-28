@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamCrack — Audit et récupération WPA2 Wi-Fi</title>
+  <meta name="description" content="StreamCrack est un outil Rust TUI d'audit et de récupération de mots de passe Wi-Fi WPA2, fonctionnant localement et hors-ligne.">
+  <link rel="stylesheet" href="/stream-crack/assets/css/style.css">
+  <link rel="icon" href="/stream-crack/favicon.ico">
+  <meta name="color-scheme" content="dark light">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="navbar container">
+    <a href="/stream-crack/" class="brand">
+      Stream<span class="brand-accent">Crack</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Fonctionnalités</a></li>
+      <li><a href="#install">Installation</a></li>
+      <li><a href="#usage">Utilisation</a></li>
+      <li><a href="#security">Sécurité</a></li>
+    </ul>
+    <button class="theme-toggle" aria-label="Basculer le thème">L</button>
+  </nav>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="badge">WPA2 · Audite et récupération de mot de passe &bull; Local &amp; hors-ligne</div>
+  <h1>StreamCrack</h1>
+  <p class="lead">Outil Rust d'audit et de récupération de mots de passe Wi-Fi WPA2 avec interface terminale TUI. Conçu pour les audits autorisés, le traitement local et l'efficacité sur machines aux ressources limitées.</p>
+  <div class="hero-actions">
+    <a href="#install" class="btn btn-primary">Installer via APT</a>
+    <a href="#features" class="btn btn-outline">Voir les fonctionnalités</a>
+  </div>
+  <div style="margin-top:1.5rem;">
+    <span class="status-badge status-available">&#10004; Version 0.1.0 disponible</span>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div class="container">
+    <h2>Fonctionnalités</h2>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Audit de captures PCAP/PCAPNG</h3>
+        <p>Lecture bornée des fichiers de capture, validation des longueurs et offsets, classification des frames 802.11, rapports de métadonnées assainies (JSON et texte).</p>
+      </div>
+      <div class="card">
+        <h3>Extraction de handshake WPA2</h3>
+        <p>Rassemble les frames EAPOL-Key d'un handshake 4-way depuis une capture, avec récupération du SSID via les balises beacon.</p>
+      </div>
+      <div class="card">
+        <h3>Récupération hors-ligne du PSK</h3>
+        <p>Vérification du MIC WPA2 (PBKDF2-HMAC-SHA1, PTK, KCK) par attaque dictionnaire ou masque, avec plafonnement des candidats, progression et annulation.</p>
+      </div>
+      <div class="card">
+        <h3>Interface TUI</h3>
+        <p>Interface terminale clavier-driven avec écrans Résumé, Trames et Aide. Navigation fluide, redimensionnement, états d'erreur et de progression.</p>
+      </div>
+      <div class="card">
+        <h3>Sûr par construction</h3>
+        <p>Aucune donnée de payload, clé ou credential n'est jamais affichée ni journalisée. Tous les fichiers d'entrée sont traités comme non fiables.</p>
+      </div>
+      <div class="card">
+        <h3>Local et sans réseau</h3>
+        <p>Aucune dépendance réseau requise pour l'usage ordinaire. Traitement entièrement local des fichiers de capture.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="install">
+  <div class="container">
+    <h2>Installation</h2>
+    <div class="install-layout">
+      <aside class="install-sidebar">
+        <h3>Dans cette section</h3>
+        <ul>
+          <li><a href="#apt">APT (recommandé)</a></li>
+          <li><a href="#deb">Téléchargement direct (.deb)</a></li>
+          <li><a href="#source">Depuis les sources</a></li>
+          <li><a href="#update">Mise à jour</a></li>
+          <li><a href="#remove">Désinstallation</a></li>
+        </ul>
+      </aside>
+
+      <div class="install-steps">
+        <div class="step" id="apt">
+          <div class="step-header">
+            <span class="step-number">1</span>
+            <h4>Ajouter le dépôt APT StreamCrack</h4>
+          </div>
+          <p>Ajoutez la source APT signée au gestionnaire de paquets.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyText(this)">Copier</button>
+            <pre>echo "deb [signed-by=/etc/apt/keyrings/streamcrack.gpg] https://sudomarc.github.io/stream-crack/apt/ stable main" | sudo tee /etc/apt/sources.list.d/streamcrack.list</pre>
+          </div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyText(this)">Copier</button>
+            <pre>sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://sudomarc.github.io/stream-crack/apt/streamcrack.gpg | sudo tee /etc/apt/keyrings/streamcrack.gpg &gt; /dev/null</pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header">
+            <span class="step-number">2</span>
+            <h4>Installer le paquet</h4>
+          </div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyText(this)">Copier</button>
+            <pre>sudo apt update
+sudo apt install streamcrack</pre>
+          </div>
+        </div>
+
+        <div class="step" id="deb">
+          <div class="step-header">
+            <span class="step-number">3</span>
+            <h4>Téléchargement direct (.deb)</h4>
+          </div>
+          <p>Téléchargez le dernier paquet <code>.deb</b> depuis la page <a href="https://github.com/sudomarc/stream-crack/releases">Releases GitHub</a>, puis installez :</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyText(this)">Copier</button>
+            <pre>curl -LO https://github.com/sudomarc/stream-crack/releases/download/v0.1.0/streamcrack_0.1.0-1_amd64.deb
+sudo apt install ./streamcrack_0.1.0-1_amd64.deb</pre>
+          </div>
+          <p class="disclaimer">&#x26a0; Le paquet n'est proposé que s'il a été publié. Vérifiez toujours la version sur la page Releases.</p>
+        </div>
+
+        <div class="step" id="source">
+          <div class="step-header">
+            <span class="step-number">4</span>
+            <h4>Depuis les sources</h4>
+          </div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyText(this)">Copier</button>
+            <pre>git clone https://github.com/sudomarc/stream-crack.git
+cd stream-crack
+cargo build --release</pre>
+          </div>
+          <p>Le binaire se trouve dans <code>target/release/streamcrack</code>.</p>
+        </div>
+
+        <div class="step" id="update">
+          <div class="step-header">
+            <span class="step-number">5</span>
+            <h4>Mise à jour</h4>
+          </div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyText(this)">Copier</button>
+            <pre>sudo apt update
+sudo apt upgrade streamcrack</pre>
+          </div>
+        </div>
+
+        <div class="step" id="remove">
+          <div class="step-header">
+            <span class="step-number">6</span>
+            <h4>Désinstallation</h4>
+          </div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyText(this)">Copier</button>
+            <pre>sudo apt remove streamcrack</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="usage">
+  <div class="container">
+    <h2>Utilisation</h2>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Inspecter un capture</h3>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyText(this)">Copier</button>
+          <pre>streamcrack capture.pcap</pre>
+        </div>
+        <p>Affiche un résumé des métadonnées : format, link type, nombre de paquets, octets capturés, horodatages, diagnostics.</p>
+      </div>
+      <div class="card">
+        <h3>Lancer la TUI</h3>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyText(this)">Copier</button>
+          <pre>streamcrack --tui capture.pcap</pre>
+        </div>
+        <p>Interface terminale avec écrans Résumé, Trames, Aide. Touches : <code>j/k</code> sélection, <code>Tab</code> écrans, <code>q</code> quitter.</p>
+      </div>
+      <div class="card">
+        <h3>Récupérer un PSK</h3>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyText(this)">Copier</button>
+          <pre>streamcrack --crack --wordlist wordlist.txt capture.pcap</pre>
+        </div>
+        <p>Attaque dictionnaire autorisée uniquement sur réseaux dont vous avez l'autorisation. Masque possible avec <code>-m</code>.</p>
+      </div>
+    </div>
+
+    <div class="tui-preview" style="margin-top:2rem;">
+      <span style="color:var(--color-accent);font-weight:bold;">&gt;</span> streamcrack --tui capture.pcap
+      <br><span style="color:#64748b;">— StreamCrack inspection —</span>
+      <br>format: Pcapng
+      <br>packets: 42
+      <br>captured bytes: 8192
+      <br>link type: IEEE 802.11
+      <br>diagnostics: 0 entries
+      <br><span style="color:#94a3b8;">q:quit  ?:help  Tab:screens  j/k:select</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="security">
+  <div class="container">
+    <h2>Sécurité et vérification des signatures</h2>
+    <p>Le dépôt APT et les fichiers de release sont signés avec la clé GPG StreamCrack. Vérifiez toujours la provenance avant d'installer.</p>
+    <div class="spec-table">
+      <tr><th>Élément</th><th>Valeur</th></tr>
+      <tr><td>Identité de la clé</td><td>StreamCrack (StreamCrack release signing)</td></tr>
+      <tr><td>Email</td><td>release@streamcrack.example.org</td></tr>
+      <tr><td>Empreinte (fingerprint)</td><td><code>361D DF09 82AD 17A9 3042 ED27 9559 5FE8 4A3E A8A5</code></td></tr>
+      <tr><td>Clé publique</td><td><a href="/stream-crack/apt/streamcrack.gpg">streamcrack.gpg</a></td></tr>
+      <tr><td>Algorithme</td><td>RSA 4096 (signing only)</td></tr>
+    </div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyText(this)">Copier</button>
+      <pre>gpg --keyserver hkps://keys.openpgp.org --recv-keys 361DDF0982AD17A93042ED2795595FE84A3EA8A5
+gpg --verify InRelease</pre>
+    </div>
+    <div class="disclaimer">
+      <strong>Utilisation autorisée uniquement.</strong> StreamCrack ne doit être employé que sur des réseaux et captures dont vous possédez l'autorisation écrite d'audit. Toute utilisation contre un réseau tiers sans consentement est interdite.
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2>Dépannage</h2>
+    <div class="grid-3">
+      <div class="card">
+        <h3>« commande introuvable » après l'installation</h3>
+        <p>Vérifiez que <code>/usr/bin</code> est dans votre <code>PATH</code>, puis relancez votre shell ou ouvrez un nouveau terminal.</p>
+      </div>
+      <div class="card">
+        <h3>Signature APT invalide</h3>
+        <p>Ré-importez la clé publique depuis <code>/stream-crack/apt/streamcrack.gpg</code> et regénérez les fichiers de cache APT (<code>sudo apt update</code>).</p>
+      </div>
+      <div class="card">
+        <h3>Aucun handshake trouvé</h3>
+        <p>Le fichier de capture ne contient pas deux frames EAPOL-Key sur une même paire d'adresses MAC. Vérifiez que le fichier est bien une capture WPA2 avec handshake complet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>StreamCrack — Outil d'audit et de récupération WPA2. Version <strong>0.1.0</strong>.</p>
+    <p><a href="https://github.com/sudomarc/stream-crack">GitHub</a> &bull;
+    <a href="https://github.com/sudomarc/stream-crack/issues">Signaler un bug</a> &bull;
+    <a href="SECURITY.md">Politique de sécurité</a></p>
+    <p style="margin-top:0.5rem; font-size:0.75rem; opacity:0.6;">Aucune licence sélectionnée. Tous droits réservés par défaut.</p>
+  </div>
+</footer>
+
+<script>
+  function copyText(btn) {
+    const pre = btn.parentNode.querySelector('pre');
+    if (!pre) return;
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+      const old = btn.textContent;
+      btn.textContent = 'Copié !';
+      setTimeout(() => btn.textContent = old, 1200);
+    });
+  }
+
+  // Theme toggle
+  const toggle = document.querySelector('.theme-toggle');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  let isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && prefersDark.matches);
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  toggle.textContent = isDark ? 'D' : 'L';
+  toggle.addEventListener('click', () => {
+    isDark = !isDark;
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    toggle.textContent = isDark ? 'D' : 'L';
+  });
+</script>
+</body>
+</html>

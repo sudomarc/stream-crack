@@ -11,6 +11,15 @@ thiserror = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
+# Terminal user interface.
+crossterm = "0.29"
+ratatui = "0.29"
+
+# WPA2 password recovery (authorized offline audit only).
+pbkdf2 = "0.11"
+hmac = "0.12"
+sha1 = "0.10"
+
 
 [profile.release]
 opt-level = 2

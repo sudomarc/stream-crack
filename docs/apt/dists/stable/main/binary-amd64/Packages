@@ -1,0 +1,23 @@
+Package: streamcrack
+Version: 0.1.0-1
+Architecture: amd64
+Maintainer: StreamCrack Team <release@streamcrack.example.org>
+Installed-Size: 1800
+Depends: libc6
+Filename: pool/main/s/streamcrack/streamcrack_0.1.0-1_amd64.deb
+Size: 396564
+MD5sum: 7fa4bdaa62434d7cb3ddf3ae71ea70d1
+SHA1: 14628e780f02fe5f9393af9da79c791d6a369af0
+SHA256: 07d122c2736dc71c29dffc260bb56c68ffde88a25c1ad26489e2af5e16fa0af2
+Section: net
+Priority: optional
+Homepage: https://sudomarc.github.io/stream-crack/
+Description: WPA2 Wi-Fi password auditing and recovery tool
+ StreamCrack is an offline WPA2 Wi-Fi password auditing and recovery tool.
+ It inspects local PCAP/PCAPNG capture files for metadata, extracts WPA2
+ 4-way handshakes, and performs authorized offline PSK recovery
+ (dictionary or mask cracking) against captured handshakes. It features a
+ keyboard-driven terminal interface and does not perform live capture,
+ packet injection, or deauthentication.
+
+dpkg-scanpackages: info: Wrote 1 entries to output Packages file.

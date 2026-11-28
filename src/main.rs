@@ -1,8 +1,10 @@
 //! Application entry point for the `streamcrack` binary.
 //!
-//! StreamCrack is an offline capture-metadata inspector. It does not implement
-//! password recovery, wordlists, brute force, candidate generation against real
-//! captures, GPU cracking, live capture, packet injection, or deauthentication.
+//! StreamCrack is an offline WPA2 Wi-Fi password auditing and recovery tool.
+//! It inspects PCAP/PCAPNG capture files for metadata, extracts WPA2 4-way
+//! handshakes, and performs authorized offline PSK recovery (dictionary/mask
+//! cracking) against captured handshakes. It does not perform live capture,
+//! packet injection, or deauthentication.
 
 use std::process::ExitCode;
 

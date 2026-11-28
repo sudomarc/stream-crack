@@ -3,7 +3,6 @@
 //! The binary is driven as a subprocess via `CARGO_BIN_EXE_STREAMCRACK`; all
 //! fixtures are synthetic.
 
-use std::env;
 use std::process::Command;
 
 use serde_json::Value;
@@ -11,8 +10,16 @@ use serde_json::Value;
 mod fixtures;
 use fixtures::{pcap, pcapng, write_fixture};
 
-fn streamcrack_bin() -> &'static str {
-    env!("CARGO_BIN_EXE_STREAMCRACK")
+fn streamcrack_bin() -> String {
+    if let Ok(p) = std::env::var("CARGO_BIN_EXE_STREAMCRACK") {
+        return p;
+    }
+    // Fall back to the binary cargo just built next to the manifest.
+    let mut path = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"));
+    path.push("target");
+    path.push("debug");
+    path.push("streamcrack");
+    path.to_string_lossy().to_string()
 }
 
 fn run(args: &[impl AsRef<std::ffi::OsStr>]) -> std::process::Output {
