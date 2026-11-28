@@ -1,0 +1,17 @@
+Origin: StreamCrack
+Label: StreamCrack
+Suite: stable
+Codename: stable
+Architectures: amd64
+Components: main
+Description: StreamCrack APT repository
+Date: 2026-11-28T00:00:00Z
+0c93e9b04d6fdfd08f7928c13141260d  dists/stable/main/binary-amd64/Packages
+9c1317e6a8a9f890edda104a0fb90158  dists/stable/main/binary-amd64/Packages.gz
+7fa4bdaa62434d7cb3ddf3ae71ea70d1  pool/main/s/streamcrack/streamcrack_0.1.0-1_amd64.deb
+fb00f8369d23065d4af30bffbd69fec449f38b69  dists/stable/main/binary-amd64/Packages
+2b92e7f32f85a77b715b22573900de29223f5af0  dists/stable/main/binary-amd64/Packages.gz
+14628e780f02fe5f9393af9da79c791d6a369af0  pool/main/s/streamcrack/streamcrack_0.1.0-1_amd64.deb
+a34aa07167fce8d55c225a961462096333754ce52b71270abeb9c5b8828b40c5  dists/stable/main/binary-amd64/Packages
+4affeb0b52be0367bf0bd62401f6d5e3cc9f5efef3e5a9824f001890b05f1f51  dists/stable/main/binary-amd64/Packages.gz
+07d122c2736dc71c29dffc260bb56c68ffde88a25c1ad26489e2af5e16fa0af2  pool/main/s/streamcrack/streamcrack_0.1.0-1_amd64.deb
