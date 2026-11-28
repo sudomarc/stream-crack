@@ -11,44 +11,40 @@ permissions:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.get_tag.outputs.tag }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
 
-      - name: Cache cargo registry
+      - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
-      - name: Get release tag
-        id: get_tag
-        run: |
-          TAG="${GITHUB_REF_NAME}"
-          echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
+      - name: Get tag
+        id: tag
+        run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
-      - name: Run full test suite
+      - name: Test
         run: |
           cargo fmt --all -- --check
           cargo clippy --all-targets --all-features -- -D warnings
           cargo test --all-targets
 
-      - name: Build release binary
+      - name: Build release
         run: cargo build --release --locked
 
-      - name: Install packaging tools
+      - name: Install dpkg-dev
         run: sudo apt-get update && sudo apt-get install -y dpkg-dev
 
-      - name: Build .deb package
-        id: build_deb
+      - name: Build .deb
+        id: deb
         run: |
-          TAG="${{ steps.get_tag.outputs.tag }}"
+          TAG=${{ steps.tag.outputs.tag }}
           DEB="streamcrack_${TAG}_amd64.deb"
-          rm -rf pkg/build && mkdir -p pkg/build/DEBIAN pkg/build/usr/bin pkg/build/usr/share/doc/streamcrack pkg/build/usr/share/man/man1
+          rm -rf pkg/build
+          mkdir -p pkg/build/DEBIAN pkg/build/usr/bin pkg/build/usr/share/doc/streamcrack pkg/build/usr/share/man/man1
           cp target/release/streamcrack pkg/build/usr/bin/streamcrack
           chmod 0755 pkg/build/usr/bin/streamcrack
           cp README.md pkg/build/usr/share/doc/streamcrack/README.md
@@ -75,21 +71,19 @@ EOF
           dpkg-deb --build --root-owner-group pkg/build "$DEB"
           echo "deb=$DEB" >> "$GITHUB_OUTPUT"
 
-      - name: Import GPG signing key
+      - name: Import GPG key
         if: env.STREAMCRACK_GPG_PRIVATE_KEY != ''
-        run: |
-          echo "${STREAMCRACK_GPG_PRIVATE_KEY}" | gpg --batch --import
-          echo "GPG key imported"
+        run: echo "${STREAMCRACK_GPG_PRIVATE_KEY}" | gpg --batch --import
         env:
           STREAMCRACK_GPG_PRIVATE_KEY: ${{ secrets.STREAMCRACK_GPG_PRIVATE_KEY }}
 
-      - name: Create GitHub release
+      - name: Create release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.get_tag.outputs.tag }}
-          name: StreamCrack ${{ steps.get_tag.outputs.tag }}
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: StreamCrack ${{ steps.tag.outputs.tag }}
           body: |
-            # StreamCrack ${{ steps.get_tag.outputs.tag }}
+            # StreamCrack ${{ steps.tag.outputs.tag }}
 
             WPA2 Wi-Fi password auditing and recovery tool.
 
@@ -106,19 +100,19 @@ EOF
 
             ### Direct .deb download
             ```bash
-            curl -LO https://github.com/sudomarc/stream-crack/releases/download/${{ steps.get_tag.outputs.tag }}/streamcrack_${{ steps.get_tag.outputs.tag }}_amd64.deb
-            sudo apt install ./streamcrack_${{ steps.get_tag.outputs.tag }}_amd64.deb
+            curl -LO https://github.com/sudomarc/stream-crack/releases/download/${{ steps.tag.outputs.tag }}/streamcrack_${{ steps.tag.outputs.tag }}_amd64.deb
+            sudo apt install ./streamcrack_${{ steps.tag.outputs.tag }}_amd64.deb
             ```
           draft: false
           prerelease: false
 
-      - name: Upload .deb as release asset
+      - name: Upload .deb
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.get_tag.outputs.tag }}
-          files: ${{ steps.build_deb.outputs.deb }}
+          tag_name: ${{ steps.tag.outputs.tag }}
+          files: ${{ steps.deb.outputs.deb }}
 
-      - name: Update APT repository
+      - name: Update APT repo
         if: env.STREAMCRACK_GPG_PRIVATE_KEY != ''
         env:
           STREAMCRACK_GPG_PRIVATE_KEY: ${{ secrets.STREAMCRACK_GPG_PRIVATE_KEY }}
@@ -126,8 +120,8 @@ EOF
           STREAMCRACK_GPG_NAME: ${{ secrets.STREAMCRACK_GPG_NAME }}
           STREAMCRACK_APT_DIST: stable
         run: |
-          DEB="${{ steps.build_deb.outputs.deb }}"
-          TAG="${{ steps.get_tag.outputs.tag }}"
+          DEB=${{ steps.deb.outputs.deb }}
+          TAG=${{ steps.tag.outputs.tag }}
           mkdir -p docs/apt/pool/main/s/streamcrack
           cp "$DEB" docs/apt/pool/main/s/streamcrack/
           cd docs/apt
@@ -136,10 +130,10 @@ EOF
           apt-ftparchive release dists/${STREAMCRACK_APT_DIST} > dists/${STREAMCRACK_APT_DIST}/Release
           gpg --batch --yes --local-user "${STREAMCRACK_GPG_NAME}" --armor --output dists/${STREAMCRACK_APT_DIST}/InRelease --clearsign dists/${STREAMCRACK_APT_DIST}/Release
           gpg --batch --yes --local-user "${STREAMCRACK_GPG_NAME}" --armor --detach-sign --output dists/${STREAMCRACK_APT_DIST}/Release.gpg dists/${STREAMCRACK_APT_DIST}/Release
-          cp streamcrack.gpg dists/${STREAMCRACK_APT_DIST}/streamcrack.gpg 2>/dev/null || cp ../streamcrack.gpg dists/${STREAMCRACK_APT_DIST}/streamcrack.gpg
+          cp streamcrack.gpg dists/${STREAMCRACK_APT_DIST}/streamcrack.gpg 2>/dev/null || true
           cd ../..
           git config user.name "StreamCrack Release Bot"
           git config user.email "release@streamcrack.example.org"
           git add docs/apt/
-          git commit -m "chore(release): update APT repository for ${{ steps.get_tag.outputs.tag }}" || echo "No changes to commit"
+          git commit -m "chore(release): update APT repository for ${{ steps.tag.outputs.tag }}" || echo "No changes to commit"
           git push origin main || echo "Push failed"
