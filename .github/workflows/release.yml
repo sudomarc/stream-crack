@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -37,8 +36,7 @@ jobs:
       - name: Build .deb
         id: deb
         run: |
-          TAG=${GITHUB_REF_NAME}
-          DEB="streamcrack_${TAG}_amd64.deb"
+          TAG=${{ steps.tag.outputs.tag }}_amd64.deb
           rm -rf pkg/build
           mkdir -p pkg/build/DEBIAN pkg/build/usr/bin pkg/build/usr/share/doc/streamcrack pkg/build/usr/share/man/man1
           cp target/release/streamcrack pkg/build/usr/bin/streamcrack
@@ -63,8 +61,8 @@ Description: WPA2 Wi-Fi password auditing and recovery tool
  packet injection, or deauthentication.
 Homepage: https://sudomarc.github.io/stream-crack/
 EOF
-          dpkg-deb --build --root-owner-group pkg/build "$DEB"
-          echo "deb=$DEB" >> "$GITHUB_OUTPUT"
+          dpkg-deb --build --root-owner-group pkg/build "streamcrack_${TAG}"
+          echo "deb=streamcrack_${TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Import GPG key
         if: env.STREAMCRACK_GPG_PRIVATE_KEY != ''
