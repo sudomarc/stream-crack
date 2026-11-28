@@ -13,5 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run full test suite
         run: cargo test --all-targets
+
+      - name: Show tag
+        run: echo "${GITHUB_REF_NAME}"
