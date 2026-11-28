@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,6 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Show tag
+        run: echo "Tag: ${GITHUB_REF_NAME}"
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -21,10 +25,6 @@ jobs:
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
-
-      - name: Get tag
-        id: tag
-        run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Test
         run: |
@@ -41,7 +41,7 @@ jobs:
       - name: Build .deb
         id: deb
         run: |
-          TAG=${{ steps.tag.outputs.tag }}
+          TAG=${{ github.ref_name }}
           DEB="streamcrack_${TAG}_amd64.deb"
           rm -rf pkg/build
           mkdir -p pkg/build/DEBIAN pkg/build/usr/bin pkg/build/usr/share/doc/streamcrack pkg/build/usr/share/man/man1
@@ -80,10 +80,10 @@ EOF
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: StreamCrack ${{ steps.tag.outputs.tag }}
+          tag_name: ${{ github.ref_name }}
+          name: StreamCrack ${{ github.ref_name }}
           body: |
-            # StreamCrack ${{ steps.tag.outputs.tag }}
+            # StreamCrack ${{ github.ref_name }}
 
             WPA2 Wi-Fi password auditing and recovery tool.
 
@@ -100,8 +100,8 @@ EOF
 
             ### Direct .deb download
             ```bash
-            curl -LO https://github.com/sudomarc/stream-crack/releases/download/${{ steps.tag.outputs.tag }}/streamcrack_${{ steps.tag.outputs.tag }}_amd64.deb
-            sudo apt install ./streamcrack_${{ steps.tag.outputs.tag }}_amd64.deb
+            curl -LO https://github.com/sudomarc/stream-crack/releases/download/${{ github.ref_name }}/streamcrack_${{ github.ref_name }}_amd64.deb
+            sudo apt install ./streamcrack_${{ github.ref_name }}_amd64.deb
             ```
           draft: false
           prerelease: false
@@ -109,7 +109,7 @@ EOF
       - name: Upload .deb
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
+          tag_name: ${{ github.ref_name }}
           files: ${{ steps.deb.outputs.deb }}
 
       - name: Update APT repo
@@ -121,7 +121,7 @@ EOF
           STREAMCRACK_APT_DIST: stable
         run: |
           DEB=${{ steps.deb.outputs.deb }}
-          TAG=${{ steps.tag.outputs.tag }}
+          TAG=${{ github.ref_name }}
           mkdir -p docs/apt/pool/main/s/streamcrack
           cp "$DEB" docs/apt/pool/main/s/streamcrack/
           cd docs/apt
@@ -135,5 +135,5 @@ EOF
           git config user.name "StreamCrack Release Bot"
           git config user.email "release@streamcrack.example.org"
           git add docs/apt/
-          git commit -m "chore(release): update APT repository for ${{ steps.tag.outputs.tag }}" || echo "No changes to commit"
+          git commit -m "chore(release): update APT repository for ${{ github.ref_name }}" || echo "No changes to commit"
           git push origin main || echo "Push failed"
