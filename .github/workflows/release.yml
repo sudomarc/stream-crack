@@ -4,15 +4,9 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release tag to build (e.g. v0.1.0)'
-        required: false
 
 permissions:
   contents: write
-  pages: write
 
 jobs:
   build-and-release:
@@ -35,14 +29,7 @@ jobs:
         id: get_tag
         run: |
           TAG="${GITHUB_REF_NAME}"
-          if [ -z "$TAG" ]; then
-            TAG="${INPUT_TAG}"
-          fi
-          if [ -z "$TAG" ]; then
-            TAG="v$(grep '^version' Cargo.toml | head -1 | sed 's/.*= *//;s/\"//g')"
-            echo "No tag provided, deriving from Cargo.toml: $TAG"
-          fi
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Run full test suite
         run: |
@@ -66,9 +53,8 @@ jobs:
           chmod 0755 pkg/build/usr/bin/streamcrack
           cp README.md pkg/build/usr/share/doc/streamcrack/README.md
           cp LICENSE pkg/build/usr/share/doc/streamcrack/LICENSE 2>/dev/null || true
-          cp man/streamcrack.1 pkg/build/usr/share/man/man1/streamcrack.1 2>/dev/null || true
           gzip -c pkg/build/usr/share/man/man1/streamcrack.1 > pkg/build/usr/share/man/man1/streamcrack.1.gz 2>/dev/null || true
-          cat > pkg/build/DEBIAN/control << 'CONTROLEOF'
+          cat > pkg/build/DEBIAN/control << 'EOF'
 Package: streamcrack
 Version: 0.1.0-1
 Section: net
@@ -85,9 +71,8 @@ Description: WPA2 Wi-Fi password auditing and recovery tool
  keyboard-driven terminal interface and does not perform live capture,
  packet injection, or deauthentication.
 Homepage: https://sudomarc.github.io/stream-crack/
-CONTROLEOF
+EOF
           dpkg-deb --build --root-owner-group pkg/build "$DEB"
-          ls -la "$DEB"
           echo "deb=$DEB" >> "$GITHUB_OUTPUT"
 
       - name: Import GPG signing key
@@ -99,7 +84,6 @@ CONTROLEOF
           STREAMCRACK_GPG_PRIVATE_KEY: ${{ secrets.STREAMCRACK_GPG_PRIVATE_KEY }}
 
       - name: Create GitHub release
-        id: create_release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.get_tag.outputs.tag }}
@@ -113,14 +97,9 @@ CONTROLEOF
 
             ### APT (recommended)
             ```bash
-            # Add the StreamCrack APT repository
             echo "deb [signed-by=/etc/apt/keyrings/streamcrack.gpg] https://sudomarc.github.io/stream-crack/apt/ stable main" | sudo tee /etc/apt/sources.list.d/streamcrack.list
-
-            # Add the signing key
             sudo mkdir -p /etc/apt/keyrings
             curl -fsSL https://sudomarc.github.io/stream-crack/apt/streamcrack.gpg | sudo tee /etc/apt/keyrings/streamcrack.gpg > /dev/null
-
-            # Install
             sudo apt update
             sudo apt install streamcrack
             ```
@@ -129,13 +108,6 @@ CONTROLEOF
             ```bash
             curl -LO https://github.com/sudomarc/stream-crack/releases/download/${{ steps.get_tag.outputs.tag }}/streamcrack_${{ steps.get_tag.outputs.tag }}_amd64.deb
             sudo apt install ./streamcrack_${{ steps.get_tag.outputs.tag }}_amd64.deb
-            ```
-
-            ### From source
-            ```bash
-            git clone https://github.com/sudomarc/stream-crack.git
-            cd stream-crack
-            cargo build --release
             ```
           draft: false
           prerelease: false
@@ -146,7 +118,7 @@ CONTROLEOF
           tag_name: ${{ steps.get_tag.outputs.tag }}
           files: ${{ steps.build_deb.outputs.deb }}
 
-      - name: Update APT repository and commit
+      - name: Update APT repository
         if: env.STREAMCRACK_GPG_PRIVATE_KEY != ''
         env:
           STREAMCRACK_GPG_PRIVATE_KEY: ${{ secrets.STREAMCRACK_GPG_PRIVATE_KEY }}
