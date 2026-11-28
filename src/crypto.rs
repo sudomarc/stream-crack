@@ -13,9 +13,7 @@ use hmac::{Hmac, Mac};
 use pbkdf2::pbkdf2;
 use sha1::Sha1;
 
-use crate::domain::wpa2::{
-    CrackResult, Handshake, MacAddr, Nonce, PskCandidate,
-};
+use crate::domain::wpa2::{CrackResult, Handshake, MacAddr, Nonce, PskCandidate};
 
 type HmacSha1 = Hmac<Sha1>;
 
@@ -153,7 +151,7 @@ pub fn verify_handshake(handshake: &Handshake, candidate: &PskCandidate) -> Crac
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::wpa2::EapolFrame;
+    use crate::domain::wpa2::{EapolFrame, Handshake, MacAddr, Nonce};
 
     fn handshake(ssid: &[u8], password: &[u8]) -> (Handshake, PskCandidate) {
         let ssid = ssid.to_vec();
@@ -166,7 +164,7 @@ mod tests {
         let kck = kck_for_ptk(&ptk);
 
         // Synthetic EAPOL M2: header(4) + RSN descriptor body, MIC at offset 81.
-        let mut raw = vec![0u8; 112];
+        let mut raw = vec![0u8; 99];
         raw[0] = 2; // EAPOL version 2
         raw[1] = 3; // EAPOL-Key
         raw[4] = 2; // RSN descriptor
@@ -246,4 +244,13 @@ mod tests {
         assert_eq!(verify_handshake(&handshake, &wrong), CrackResult::Failed);
     }
 
+    #[test]
+    fn verify_handshake_rejects_malformed_mic_offset() {
+        let (mut handshake, candidate) = handshake(b"malformed", b"pw");
+        handshake.m2.mic_offset_within_raw = handshake.m2.raw.len() + 1;
+        assert_eq!(
+            verify_handshake(&handshake, &candidate),
+            CrackResult::Failed
+        );
+    }
 }
